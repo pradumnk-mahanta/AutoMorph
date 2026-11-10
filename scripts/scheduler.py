@@ -113,6 +113,15 @@ def job() -> None:
 if __name__ == "__main__":
   logging.info("[*] Scheduler daemon initialized.")
 
+  # Ensure Morphe CLI is downloaded on first-time startup if not present
+  try:
+    import morphe_cli
+    if not morphe_cli.is_cli_installed():
+      logging.info("[*] Morphe CLI not detected on startup. Downloading latest Morphe CLI...")
+      morphe_cli.update_morphe_cli()
+  except Exception as e:
+    logging.warning(f"Could not check/download Morphe CLI on scheduler startup: {e}")
+
   if RUN_ON_STARTUP:
     logging.info("[*] RUN_ON_STARTUP is enabled. Running initial job...")
     job()

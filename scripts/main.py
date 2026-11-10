@@ -12,6 +12,7 @@ import sys
 import apkpure_fetcher
 import logging
 import manager
+import morphe_cli
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,17 @@ def main(project_root: Path, conf: dict) -> None:
 
     interrupted = False
     try:
+        # Search for Morphe CLI updates first before checking app updates
+        logger.info("[*] Searching for Morphe CLI updates...")
+        try:
+            cli_res = morphe_cli.update_morphe_cli(project_root)
+            if cli_res.get("updated"):
+                logger.info(f" └── [✓] Morphe CLI updated to {cli_res.get('tag', cli_res.get('version'))}")
+            elif cli_res.get("status") == "up_to_date":
+                logger.info(f" └── [✓] Morphe CLI is up to date ({cli_res.get('version')})")
+        except Exception as e:
+            logger.warning(f" └── [!] Morphe CLI update check encountered an issue: {e}")
+
         original_dir, patched_dir, architecture, striplibs, detailed_app_list, repo_details, low_spec_mode, max_original_packages, max_patched_packages = init(project_root, conf)
         endpoints = dispatcher.resolve_tunnel_endpoints(conf)
         base_url = endpoints[0]['base_url']
