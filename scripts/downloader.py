@@ -34,7 +34,11 @@ class Downloader:
 #        DOWNLOAD LOGIC         #
 #################################
 
-    def download_package_main(self, package_name: str, target_version: str) -> tuple[dict | None, str | None]: 
+    def download_package_main(self, package_name: str, target_version: str) -> tuple[dict | None, str | None, dict]: 
+        if not target_version or str(target_version).strip().lower() in ("0.0.0", "none", "any", "latest", "any / latest"):
+            logger.error(f"\n[!] Invalid target version '{target_version}' for {package_name}. Never fallback to 0.0.0; aborting download.")
+            return None, f"Invalid target version '{target_version}'", {}
+
         logger.info(f"\n[*] {package_name} | v{target_version} ({self.architecture})")
 
         package = {}
